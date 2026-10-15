@@ -7,3 +7,6 @@ coverage/
 .env*
 !.env.example
 server.js
+# npm is the package manager for this project
+bun.lock
+bun.lockb
