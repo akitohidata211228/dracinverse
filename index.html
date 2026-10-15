@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Upstream CDNs (flickreels/melolo) block hotlinking with 403, which Chrome then
+         blocks as ORB and posters never render. Sending no referrer keeps them 200. -->
+    <meta name="referrer" content="no-referrer" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23e50914'/%3E%3Ctext x='32' y='44' font-size='34' font-family='system-ui,sans-serif' font-weight='900' fill='%23fff' text-anchor='middle'%3E%E5%89%A7%3C/text%3E%3C/svg%3E" />
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23e50914'/%3E%3Ctext x='32' y='44' font-size='34' font-family='system-ui,sans-serif' font-weight='900' fill='%23fff' text-anchor='middle'%3E%E5%89%A7%3C/text%3E%3C/svg%3E" />
+    <title>DracinVerse - Nonton &amp; Baca Drama Pendek Asia</title>
+    <meta name="description" content="Platform streaming drama pendek China (Dracin) subtitle Indonesia dan multilanguage terlengkap dari FlickReels dan Melolo dengan pemutar video vertikal HD dan novel." />
+    <meta property="og:title" content="DracinVerse - Nonton &amp; Baca Drama Pendek Asia" />
+    <meta property="og:description" content="Platform streaming drama pendek China (Dracin) subtitle Indonesia dan multilanguage terlengkap dari FlickReels dan Melolo dengan pemutar video vertikal HD dan novel." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+      (function() {
+        try {
+          var originalFetch = window.fetch;
+          var customFetch = originalFetch;
+          Object.defineProperty(window, 'fetch', {
+            get: function() {
+              return customFetch;
+            },
+            set: function(val) {
+              customFetch = val;
+            },
+            configurable: true,
+            enumerable: true
+          });
+        } catch (e) {
+          // ignore
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

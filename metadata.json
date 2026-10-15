@@ -1,0 +1,6 @@
+{
+  "name": "DracinVerse - Nonton & Baca Drama Pendek Asia",
+  "description": "Platform streaming drama pendek China (Dracin) subtitle Indonesia dan multilanguage terlengkap dari FlickReels dan Melolo dengan pemutar video vertikal HD dan novel.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
