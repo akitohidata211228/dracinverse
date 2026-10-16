@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from '../../src/server/vercel-types';
 import { handleDetail } from '../../src/server/handlers';
 
 /** GET /api/dramas/detail — episode list + metadata for one drama. */

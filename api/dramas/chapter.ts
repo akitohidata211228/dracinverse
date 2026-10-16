@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from '../../src/server/vercel-types';
 import { handleChapter } from '../../src/server/handlers';
 
 /** GET /api/dramas/chapter — novel chapter text for a Melolo slug. */

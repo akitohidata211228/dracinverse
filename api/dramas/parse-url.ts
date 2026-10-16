@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from '../../src/server/vercel-types';
 import { handleParseUrl } from '../../src/server/handlers';
 
 /** POST /api/dramas/parse-url — resolve a pasted URL into a playable ID. */

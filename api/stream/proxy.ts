@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from '../../src/server/vercel-types';
 import { handleStreamProxy } from '../../src/server/handlers';
 
 /**

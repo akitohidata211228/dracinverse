@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from '../../src/server/vercel-types';
 import { handleSearch } from '../../src/server/handlers';
 
 /** GET /api/dramas/search — search across FlickReels + Melolo. */

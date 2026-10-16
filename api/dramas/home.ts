@@ -1,4 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest, VercelResponse } from '../../src/server/vercel-types';
 import { handleHome } from '../../src/server/handlers';
 
 /** GET /api/dramas/home — catalog sections for the landing feed. */
