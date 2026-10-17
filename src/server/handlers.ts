@@ -30,39 +30,16 @@ export async function handleHome(params: {
   const locale = flickreels.normalizeLocale(String(params.locale || 'id'));
   const source = String(params.source || 'all');
 
-  let flickData: any = null;
-  let meloloData: any = null;
+  // Both catalogs are fetched in parallel: run sequentially this request cost
+  // ~2x the origin latency, which routinely pushed `source=all` past the
+  // serverless timeout and left the feed empty.
+  const wantFlickreels = source === 'all' || source === 'flickreels';
+  const wantMelolo = source === 'all' || source === 'melolo';
 
-  if (source === 'all' || source === 'flickreels') {
-    try {
-      flickData = await flickreels.getHomeDramas(locale);
-    } catch (err: any) {
-      console.warn('FlickReels home fetch error, using fallback:', err.message);
-      flickData = {
-        locale,
-        source: 'flickreels',
-        carousel: mockFallback.FALLBACK_CAROUSEL,
-        hot: mockFallback.FALLBACK_HOT,
-        rankings: mockFallback.FALLBACK_RANKINGS,
-        recommendations: mockFallback.FALLBACK_HOT,
-        allFeatured: [...mockFallback.FALLBACK_CAROUSEL, ...mockFallback.FALLBACK_HOT]
-      };
-    }
-  }
-
-  if (source === 'all' || source === 'melolo') {
-    try {
-      meloloData = await melolo.getHomeDramas();
-    } catch (err: any) {
-      console.warn('Melolo home fetch error, using fallback:', err.message);
-      meloloData = {
-        success: true,
-        source: 'melolo',
-        featured: mockFallback.FALLBACK_HOT.filter((d) => d.source === 'melolo'),
-        categories: ['billionaire', 'romance', 'werewolf', 'fantasy', 'mafia']
-      };
-    }
-  }
+  const [flickData, meloloData] = await Promise.all([
+    wantFlickreels ? fetchHomeFlickreels(locale) : Promise.resolve(null),
+    wantMelolo ? fetchHomeMelolo() : Promise.resolve(null)
+  ]);
 
   return {
     success: true,
@@ -70,6 +47,37 @@ export async function handleHome(params: {
     flickreels: flickData,
     melolo: meloloData
   };
+}
+
+async function fetchHomeFlickreels(locale: string): Promise<any> {
+  try {
+    return await flickreels.getHomeDramas(locale);
+  } catch (err: any) {
+    console.warn('FlickReels home fetch error, using fallback:', err.message);
+    return {
+      locale,
+      source: 'flickreels',
+      carousel: mockFallback.FALLBACK_CAROUSEL,
+      hot: mockFallback.FALLBACK_HOT,
+      rankings: mockFallback.FALLBACK_RANKINGS,
+      recommendations: mockFallback.FALLBACK_HOT,
+      allFeatured: [...mockFallback.FALLBACK_CAROUSEL, ...mockFallback.FALLBACK_HOT]
+    };
+  }
+}
+
+async function fetchHomeMelolo(): Promise<any> {
+  try {
+    return await melolo.getHomeDramas();
+  } catch (err: any) {
+    console.warn('Melolo home fetch error, using fallback:', err.message);
+    return {
+      success: true,
+      source: 'melolo',
+      featured: mockFallback.FALLBACK_HOT.filter((d) => d.source === 'melolo'),
+      categories: ['billionaire', 'romance', 'werewolf', 'fantasy', 'mafia']
+    };
+  }
 }
 
 // ---------------------------------------------------------------------------
