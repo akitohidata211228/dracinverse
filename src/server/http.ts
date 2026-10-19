@@ -1,5 +1,3 @@
-import type { VercelResponse } from './vercel-types';
-
 /**
  * Marks an API response as cacheable by the Vercel Edge Network.
  *

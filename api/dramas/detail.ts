@@ -1,6 +1,5 @@
-import type { VercelRequest, VercelResponse } from '../../src/server/vercel-types';
-import { handleDetail } from '../../src/server/handlers';
-import { setEdgeCache } from '../../src/server/http';
+import { handleDetail } from '../../src/server/handlers.js';
+import { setEdgeCache } from '../../src/server/http.js';
 
 /**
  * GET /api/dramas/detail — episode list + metadata for one drama.

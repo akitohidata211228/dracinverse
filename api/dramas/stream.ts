@@ -1,7 +1,13 @@
-import type { VercelRequest, VercelResponse } from '../../src/server/vercel-types';
-import { handleStream } from '../../src/server/handlers';
+import { handleStream } from '../../src/server/handlers.js';
 
-/** GET /api/dramas/stream — playable URL for one episode (proxied). */
+/**
+ * GET /api/dramas/stream — playable URL for one episode (proxied).
+ *
+ * Intentionally not edge-cached: the returned stream URL is short-lived and
+ * a stale one produces a dead player.
+ */
+export const config = { maxDuration: 30 };
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { status, body } = await handleStream({
     id: req.query.id as string | undefined,

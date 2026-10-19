@@ -1,6 +1,5 @@
-import type { VercelRequest, VercelResponse } from '../../src/server/vercel-types';
-import { handleHome } from '../../src/server/handlers';
-import { setEdgeCache } from '../../src/server/http';
+import { handleHome } from '../../src/server/handlers.js';
+import { setEdgeCache } from '../../src/server/http.js';
 
 /**
  * GET /api/dramas/home — catalog sections for the landing feed.

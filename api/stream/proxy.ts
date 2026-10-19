@@ -1,12 +1,11 @@
-import type { VercelRequest, VercelResponse } from '../../src/server/vercel-types';
-import { handleStreamProxy } from '../../src/server/handlers';
+import { handleStreamProxy } from '../../src/server/handlers.js';
 
 /**
  * GET/HEAD/OPTIONS /api/stream/proxy — streams upstream media with CORS,
  * referer headers and HLS manifest rewriting.
  *
- * Max duration is raised because segment fetches from the upstream CDN are
- * slow and each retry adds latency.
+ * Never cached: every response is either a byte stream or a manifest with
+ * signed query params that expire.
  */
 export const config = { maxDuration: 60 };
 

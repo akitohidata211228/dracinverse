@@ -1,5 +1,4 @@
 import axios from 'axios';
-import type { ServerResponse } from 'http';
 import * as flickreels from './services/flickreels.js';
 import * as melolo from './services/melolo.js';
 import * as mockFallback from './services/mockFallback.js';
@@ -12,7 +11,7 @@ import * as mockFallback from './services/mockFallback.js';
  * data and return JSON payloads, so no Express or Vercel types leak in.
  *
  * The one exception is `handleStreamProxy`, which streams bytes straight to a
- * `ServerResponse` — both Express and Vercel responses satisfy that shape.
+ * response object — both Express and Vercel responses satisfy that shape.
  */
 
 export interface JsonResult {
@@ -346,7 +345,7 @@ const PROXY_CORS = {
   'Accept-Ranges': 'bytes'
 };
 
-function applyProxyCors(res: ServerResponse): void {
+function applyProxyCors(res: StreamProxyResponse): void {
   for (const [key, value] of Object.entries(PROXY_CORS)) {
     res.setHeader(key, value);
   }
@@ -355,11 +354,11 @@ function applyProxyCors(res: ServerResponse): void {
 /**
  * Streams an upstream media URL back to the client.
  *
- * `res` only needs the standard `ServerResponse` surface, which both the local
+ * `res` only needs the standard writable/response surface, which both the local
  * Express response and the Vercel response provide.
  */
 export async function handleStreamProxy(
-  res: ServerResponse,
+  res: StreamProxyResponse,
   opts: { targetUrl: string; method?: string; range?: string }
 ): Promise<void> {
   const targetUrl = opts.targetUrl;
