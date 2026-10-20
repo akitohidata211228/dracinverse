@@ -30,6 +30,8 @@ interface VercelResponse extends NodeJS.WritableStream {
   status(code: number): VercelResponse;
   json(body: unknown): VercelResponse;
   send(body: unknown): VercelResponse;
+  /** Present on the underlying Node response; aborts a truncated body. */
+  destroy(error?: Error): void;
 }
 
 /** Minimal writable surface the stream proxy needs (Node/Express response). */
@@ -37,4 +39,6 @@ interface StreamProxyResponse extends NodeJS.WritableStream {
   statusCode: number;
   readonly headersSent: boolean;
   setHeader(name: string, value: string | number): void;
+  /** Available on the Node response object; used to abort a truncated body. */
+  destroy(error?: Error): void;
 }

@@ -507,6 +507,30 @@ export async function handleStreamProxy(
       return;
     }
 
+    // Pipe errors happen asynchronously, so the surrounding try/catch never
+    // sees them. Without a listener an 'error' event on an unhandled stream
+    // crashes the process, and the platform answers 500 — which is exactly how
+    // a mid-transfer upstream disconnect takes down the whole segment fetch.
+    proxyRes.data.on('error', (streamErr: Error) => {
+      console.warn('Upstream segment stream error:', streamErr.message);
+      if (!res.headersSent) {
+        res.statusCode = 502;
+        res.end('Error streaming media: ' + streamErr.message);
+        return;
+      }
+      // The body already started, so the status line cannot change. Destroy the
+      // socket to signal a truncated transfer instead of leaving the client
+      // hanging against a Content-Length that will never be satisfied.
+      if (typeof res.destroy === 'function') res.destroy();
+      else res.end();
+    });
+
+    res.on('close', () => {
+      // Client navigated away or the connection dropped — stop pulling bytes
+      // from upstream so the function does not keep buffering a dead socket.
+      proxyRes.data.destroy?.();
+    });
+
     proxyRes.data.pipe(res);
   } catch (err: any) {
     console.warn('Proxy stream error for URL:', targetUrl, err.message);
