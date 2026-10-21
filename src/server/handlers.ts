@@ -469,10 +469,19 @@ export async function handleStreamProxy(
     }
 
     // Binary media (.ts / .mp4 segments and everything else)
+    //
+    // Buffered rather than piped on purpose. The manifest branch above answers
+    // with res.end() and works on Vercel, while the earlier pipe()-based branch
+    // returned 5xx for segments. Buffering removes pipe/destroy/close from the
+    // equation entirely and matches the mechanism that is already proven.
+    //
+    // Segments here peak around 3 MB, safely inside both the platform response
+    // body cap and the function memory limit.
     const proxyRes = await axios.get(targetUrl, {
-      responseType: 'stream',
+      responseType: 'arraybuffer',
       headers,
-      timeout: 25000,
+      timeout: 30000,
+      maxRedirects: 5,
       validateStatus: (status) => status >= 200 && status < 400
     });
 
@@ -487,51 +496,27 @@ export async function handleStreamProxy(
     }
 
     if (contentType) res.setHeader('Content-Type', contentType);
-    if (proxyRes.headers['content-length']) {
-      res.setHeader('Content-Length', String(proxyRes.headers['content-length']));
-    }
+
+    const body = Buffer.from(proxyRes.data);
 
     if (proxyRes.headers['content-range']) {
       res.setHeader('Content-Range', String(proxyRes.headers['content-range']));
       res.statusCode = 206;
-    } else if (opts.range && proxyRes.headers['content-length']) {
-      res.setHeader('Accept-Ranges', 'bytes');
-      res.statusCode = 200;
     } else {
+      // Declare the length we are actually about to send. Passing upstream's
+      // Content-Length through made the client wait for bytes that never
+      // arrived whenever upstream truncated the body.
+      res.setHeader('Content-Length', String(body.length));
+      if (opts.range) res.setHeader('Accept-Ranges', 'bytes');
       res.statusCode = 200;
     }
 
     if (method === 'HEAD') {
       res.end();
-      proxyRes.data.destroy?.();
       return;
     }
 
-    // Pipe errors happen asynchronously, so the surrounding try/catch never
-    // sees them. Without a listener an 'error' event on an unhandled stream
-    // crashes the process, and the platform answers 500 — which is exactly how
-    // a mid-transfer upstream disconnect takes down the whole segment fetch.
-    proxyRes.data.on('error', (streamErr: Error) => {
-      console.warn('Upstream segment stream error:', streamErr.message);
-      if (!res.headersSent) {
-        res.statusCode = 502;
-        res.end('Error streaming media: ' + streamErr.message);
-        return;
-      }
-      // The body already started, so the status line cannot change. Destroy the
-      // socket to signal a truncated transfer instead of leaving the client
-      // hanging against a Content-Length that will never be satisfied.
-      if (typeof res.destroy === 'function') res.destroy();
-      else res.end();
-    });
-
-    res.on('close', () => {
-      // Client navigated away or the connection dropped — stop pulling bytes
-      // from upstream so the function does not keep buffering a dead socket.
-      proxyRes.data.destroy?.();
-    });
-
-    proxyRes.data.pipe(res);
+    res.end(body);
   } catch (err: any) {
     console.warn('Proxy stream error for URL:', targetUrl, err.message);
     if (!res.headersSent) {
